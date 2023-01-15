@@ -1,0 +1,7 @@
+name: PixelRaid
+version: '${project.version}'
+main: me.yukinox.pixelraid.PixelRaid
+api-version: 1.19
+commands:
+  raid:
+    description: "Raid commands"

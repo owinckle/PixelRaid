@@ -1,0 +1,19 @@
+kits:
+  archer:
+    iconId: "BOW"
+    items:
+      "1":
+        id: "BOW"
+        amount: 1
+      "2":
+        id: "ARROW"
+        amount: 32
+  pyro:
+    iconId: "TNT"
+    items:
+      "1":
+        id: "FLINT_AND_STEEL"
+        amount: 1
+      "2":
+        id: "TNT"
+        amount: 6

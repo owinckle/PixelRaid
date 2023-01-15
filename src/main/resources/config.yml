@@ -1,0 +1,12 @@
+kitMenu:
+  title: "Choose a kit"
+joinMenu:
+  title: "Join a raid"
+teamMenu:
+  title: "Select a team"
+gameSettings:
+  preGameCountdown: 15 # Seconds
+  buildPhaseDuration: 15 # Minutes
+  raidPhaseDuration: 15 # Minutes
+  killReward: 20 # Dollars
+  winReward: 500 # Dollars
