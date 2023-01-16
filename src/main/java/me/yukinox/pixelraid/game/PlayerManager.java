@@ -1,12 +1,7 @@
 package me.yukinox.pixelraid.game;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import me.yukinox.pixelraid.PixelRaid;
@@ -55,29 +50,5 @@ public class PlayerManager {
 
 	public void setTeam(Team team) {
 		this.team = team;
-	}
-
-	public void saveInventory() {
-		Player player = getPlayer();
-		File inventoryFile = new File(plugin.getDataFolder() + File.separator + "inventories",
-				player.getName() + ".yml");
-		FileConfiguration inventoryConfig = YamlConfiguration.loadConfiguration(inventoryFile);
-		inventoryConfig.set("inventory", player.getInventory().getContents());
-		try {
-			inventoryConfig.save(inventoryFile);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public void loadInventory() {
-		Player player = getPlayer();
-		File inventoryFile = new File(plugin.getDataFolder() + File.separator + "inventories",
-				player.getName() + ".yml");
-		FileConfiguration inventoryConfig = YamlConfiguration.loadConfiguration(inventoryFile);
-
-		if (!inventoryFile.exists()) {
-			return;
-		}
 	}
 }

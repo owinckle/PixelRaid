@@ -34,6 +34,8 @@ public class Game {
 
 	private BukkitTask preGameTask;
 	private BukkitTask teamSelectionTask;
+	private BukkitTask buildPhaseTask;
+	private BukkitTask raidPhaseTask;
 
 	public GameState gameState;
 
@@ -141,7 +143,6 @@ public class Game {
 			double z = plugin.maps.getInt(map + ".spawn.from.z") + Math.random()
 					* (plugin.maps.getInt(map + ".spawn.to.z") - plugin.maps.getInt(map + ".spawn.from.z"));
 			spawn = new Location(Bukkit.getWorld(plugin.maps.getString(map + ".world")), x, y, z);
-			playerManager.saveInventory();
 			player.getInventory().clear();
 			player.setGameMode(GameMode.ADVENTURE);
 			player.teleport(spawn);
@@ -195,13 +196,50 @@ public class Game {
 			menu.open(player);
 			player.setGameMode(GameMode.CREATIVE);
 		}
-		gameBroadcast("Build phase has started, you have " + (buildPhaseDuration / 60) + " minutes!");
 
-		endGame();
+		gameBroadcast("Build phase has started, you have " + (buildPhaseDuration / 60) + " minutes!");
+		buildPhaseTask = Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
+			// int countdown = buildPhaseDuration * 60;
+			int countdown = 10;
+
+			public void run() {
+				if (countdown <= 0) {
+					startRaidPhase();
+					buildPhaseTask.cancel();
+				}
+
+				if (countdown <= 5) {
+					gameBroadcast(countdown + " seconds remaining.");
+				}
+				countdown--;
+			}
+		}, 0L, 20L);
+	}
+
+	private void startRaidPhase() {
+
+		gameBroadcast("Raid phase has started, you have " + (raidPhaseDuration / 60) + " minutes!");
+		raidPhaseTask = Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
+			// int countdown = raidPhaseDuration * 60;
+			int countdown = 10;
+
+			public void run() {
+				if (countdown <= 0) {
+					endGame();
+					raidPhaseTask.cancel();
+				}
+
+				if (countdown <= 5) {
+					gameBroadcast(countdown + " seconds remaining.");
+				}
+				countdown--;
+			}
+		}, 0L, 20L);
 	}
 
 	private void endGame() {
 		gameBroadcast("Game is over!");
+
 	}
 
 	public void setTeam(Player player, Team team) {
