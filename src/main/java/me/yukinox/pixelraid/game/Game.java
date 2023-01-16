@@ -21,11 +21,12 @@ import me.yukinox.pixelraid.utils.Enums.Team;
 public class Game {
 	private PixelRaid plugin;
 
-	private HashMap<String, PlayerManager> players;
+	private HashMap<String, PlayerManager> players = new HashMap<String, PlayerManager>();
 
 	public Integer teamSize;
-	private HashMap<String, PlayerManager> blueTeam;
-	private HashMap<String, PlayerManager> redTeam;
+	private HashMap<String, PlayerManager> blueTeam = new HashMap<String, PlayerManager>();
+	private HashMap<String, PlayerManager> redTeam = new HashMap<String, PlayerManager>();
+	private String map = null;;
 	private Integer preGameCountdown;
 	private Integer buildPhaseDuration;
 	private Integer raidPhaseDuration;
@@ -37,7 +38,7 @@ public class Game {
 	private BukkitTask buildPhaseTask;
 	private BukkitTask raidPhaseTask;
 
-	public GameState gameState;
+	public GameState gameState = GameState.WAITING_FOR_PLAYERS;
 
 	public Game(PixelRaid plugin, Integer teamSize) {
 		this.plugin = plugin;
@@ -47,11 +48,6 @@ public class Game {
 		this.raidPhaseDuration = plugin.config.getInt("gameSettings.raidPhaseDuration") * 60;
 		this.killReward = plugin.config.getInt("gameSettings.killReward");
 		this.winReward = plugin.config.getInt("gameSettings.winReward");
-		this.gameState = GameState.WAITING_FOR_PLAYERS;
-
-		players = new HashMap<String, PlayerManager>();
-		blueTeam = new HashMap<String, PlayerManager>();
-		redTeam = new HashMap<String, PlayerManager>();
 	}
 
 	public void addPlayer(Player player) {
@@ -95,12 +91,13 @@ public class Game {
 	private void startPreparation() {
 		gameState = GameState.PREPARATION;
 
+		gameBroadcast("Game starting in " + preGameCountdown);
 		preGameTask = Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
 			int countdown = preGameCountdown;
 
 			public void run() {
 				if (countdown <= 0) {
-					startGame();
+					initGame();
 					return;
 				}
 
@@ -109,7 +106,10 @@ public class Game {
 					return;
 				}
 
-				gameBroadcast("Game starting in " + countdown + " seconds");
+				if (countdown <= 5 && countdown > 0) {
+					gameBroadcast("Game starting in " + countdown + " seconds");
+				}
+
 				countdown--;
 			}
 		}, 0L, 20L);
@@ -120,8 +120,7 @@ public class Game {
 		preGameTask.cancel();
 	}
 
-	private void startGame() {
-		gameState = GameState.TEAMS_SELECTION;
+	private void initGame() {
 		preGameTask.cancel();
 
 		// Select a map
@@ -129,7 +128,7 @@ public class Game {
 		maps.removeAll(plugin.activeMaps);
 		Random rand = new Random();
 		int randomIndex = rand.nextInt(maps.size());
-		String map = (String) maps.toArray()[randomIndex];
+		map = (String) maps.toArray()[randomIndex];
 
 		Location spawn;
 		for (PlayerManager playerManager : players.values()) {
@@ -144,7 +143,7 @@ public class Game {
 					* (plugin.maps.getInt(map + ".spawn.to.z") - plugin.maps.getInt(map + ".spawn.from.z"));
 			spawn = new Location(Bukkit.getWorld(plugin.maps.getString(map + ".world")), x, y, z);
 			player.getInventory().clear();
-			player.setGameMode(GameMode.ADVENTURE);
+			player.setGameMode(GameMode.SURVIVAL);
 			player.teleport(spawn);
 
 		}
@@ -152,14 +151,21 @@ public class Game {
 	}
 
 	private void startTeamSelectionPhase() {
+		gameState = GameState.TEAM_SELECTION;
 		gameBroadcast("You have 30 seconds to select a team.");
 
 		TeamMenu teamMenu = new TeamMenu(plugin);
 		for (PlayerManager playerManager : players.values()) {
 			Player player = playerManager.getPlayer();
+			player.setHealth(player.getMaxHealth());
+			player.setSaturation(20);
+			player.setFoodLevel(20);
+			player.setFireTicks(0);
+			player.getActivePotionEffects().clear();
 			teamMenu.open(player);
 		}
 
+		gameBroadcast("Team selection has started, you have 30 seconds!");
 		teamSelectionTask = Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
 			int countdown = 30;
 
@@ -189,15 +195,44 @@ public class Game {
 	}
 
 	private void startBuildPhase() {
+		gameState = GameState.BUILDING;
+
 		// Opens the kit menu
 		KitMenu menu = new KitMenu(plugin);
 		for (PlayerManager playerManager : players.values()) {
 			Player player = playerManager.getPlayer();
-			menu.open(player);
+			player.getInventory().clear();
 			player.setGameMode(GameMode.CREATIVE);
+			menu.open(player);
+
+			// Teleports the player to the spawn
+			Location spawn;
+			double x;
+			double y;
+			double z;
+			if (playerManager.getTeam() == Team.BLUE) {
+				x = plugin.maps.getInt(map + ".blue.zone.from.x") + Math.random()
+						* (plugin.maps.getInt(map + ".blue.zone.to.x") - plugin.maps.getInt(map + ".blue.zone.from.x"));
+				y = plugin.maps.getInt(map + ".blue.zone.from.y") + Math.random()
+						* (plugin.maps.getInt(map + ".blue.zone.to.y") - plugin.maps.getInt(map + ".blue.zone.from.y"));
+				z = plugin.maps.getInt(map + ".blue.zone.from.z") + Math.random()
+						* (plugin.maps.getInt(map + ".blue.zone.to.z") - plugin.maps.getInt(map + ".blue.zone.from.z"));
+			} else {
+				x = plugin.maps.getInt(map + ".red.zone.from.x") + Math.random()
+						* (plugin.maps.getInt(map + ".red.zone.to.x") - plugin.maps.getInt(map + ".red.zone.from.x"));
+				y = plugin.maps.getInt(map + ".red.zone.from.y") + Math.random()
+						* (plugin.maps.getInt(map + ".red.zone.to.y") - plugin.maps.getInt(map + ".red.zone.from.y"));
+				z = plugin.maps.getInt(map + ".red.zone.from.z") + Math.random()
+						* (plugin.maps.getInt(map + ".red.zone.to.z") - plugin.maps.getInt(map + ".red.zone.from.z"));
+			}
+
+			spawn = new Location(Bukkit.getWorld(plugin.maps.getString(map + ".world")), x, y, z);
+			player.teleport(spawn);
+
 		}
 
 		gameBroadcast("Build phase has started, you have " + (buildPhaseDuration / 60) + " minutes!");
+
 		buildPhaseTask = Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
 			// int countdown = buildPhaseDuration * 60;
 			int countdown = 10;
@@ -208,7 +243,7 @@ public class Game {
 					buildPhaseTask.cancel();
 				}
 
-				if (countdown <= 5) {
+				if (countdown <= 5 && countdown > 0) {
 					gameBroadcast(countdown + " seconds remaining.");
 				}
 				countdown--;
@@ -217,6 +252,11 @@ public class Game {
 	}
 
 	private void startRaidPhase() {
+		gameState = GameState.RAID;
+		for (PlayerManager playerManager : players.values()) {
+			Player player = playerManager.getPlayer();
+			player.setGameMode(GameMode.SURVIVAL);
+		}
 
 		gameBroadcast("Raid phase has started, you have " + (raidPhaseDuration / 60) + " minutes!");
 		raidPhaseTask = Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
@@ -229,7 +269,7 @@ public class Game {
 					raidPhaseTask.cancel();
 				}
 
-				if (countdown <= 5) {
+				if (countdown <= 5 && countdown > 0) {
 					gameBroadcast(countdown + " seconds remaining.");
 				}
 				countdown--;
@@ -239,7 +279,7 @@ public class Game {
 
 	private void endGame() {
 		gameBroadcast("Game is over!");
-
+		deleteGame();
 	}
 
 	public void setTeam(Player player, Team team) {
@@ -255,8 +295,10 @@ public class Game {
 		} else if (team == null) {
 			if (blueTeam.size() < teamSize) {
 				playerManager.setTeam(Team.BLUE);
+				playerManager.sendMessage(ChatColor.GREEN, "You joined the blue team.");
 			} else {
 				playerManager.setTeam(Team.RED);
+				playerManager.sendMessage(ChatColor.GREEN, "You joined the red team.");
 			}
 		}
 	}
@@ -278,6 +320,10 @@ public class Game {
 	}
 
 	private void deleteGame() {
+		for (PlayerManager playerManager : players.values()) {
+			plugin.players.remove(playerManager.getPlayer().getName());
+		}
+
 		int key = teamSize - 1;
 		ArrayList<Game> gameList = plugin.games.get(key);
 		gameList.remove(this);
