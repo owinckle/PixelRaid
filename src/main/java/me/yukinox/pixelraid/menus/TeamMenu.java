@@ -61,7 +61,6 @@ public class TeamMenu {
 		} else {
 			game.setTeam(player, Team.RED);
 		}
-		player.closeInventory();
 	}
 
 	public void handleClose(InventoryCloseEvent event) {

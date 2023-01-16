@@ -161,7 +161,7 @@ public class Game {
 			player.setSaturation(20);
 			player.setFoodLevel(20);
 			player.setFireTicks(0);
-			player.getActivePotionEffects().clear();
+			player.getActivePotionEffects().forEach(effect -> player.removePotionEffect(effect.getType()));
 			teamMenu.open(player);
 		}
 
@@ -202,33 +202,9 @@ public class Game {
 		for (PlayerManager playerManager : players.values()) {
 			Player player = playerManager.getPlayer();
 			player.getInventory().clear();
-			player.setGameMode(GameMode.CREATIVE);
+			// player.setGameMode(GameMode.CREATIVE);
 			menu.open(player);
-
-			// Teleports the player to the spawn
-			Location spawn;
-			double x;
-			double y;
-			double z;
-			if (playerManager.getTeam() == Team.BLUE) {
-				x = plugin.maps.getInt(map + ".blue.zone.from.x") + Math.random()
-						* (plugin.maps.getInt(map + ".blue.zone.to.x") - plugin.maps.getInt(map + ".blue.zone.from.x"));
-				y = plugin.maps.getInt(map + ".blue.zone.from.y") + Math.random()
-						* (plugin.maps.getInt(map + ".blue.zone.to.y") - plugin.maps.getInt(map + ".blue.zone.from.y"));
-				z = plugin.maps.getInt(map + ".blue.zone.from.z") + Math.random()
-						* (plugin.maps.getInt(map + ".blue.zone.to.z") - plugin.maps.getInt(map + ".blue.zone.from.z"));
-			} else {
-				x = plugin.maps.getInt(map + ".red.zone.from.x") + Math.random()
-						* (plugin.maps.getInt(map + ".red.zone.to.x") - plugin.maps.getInt(map + ".red.zone.from.x"));
-				y = plugin.maps.getInt(map + ".red.zone.from.y") + Math.random()
-						* (plugin.maps.getInt(map + ".red.zone.to.y") - plugin.maps.getInt(map + ".red.zone.from.y"));
-				z = plugin.maps.getInt(map + ".red.zone.from.z") + Math.random()
-						* (plugin.maps.getInt(map + ".red.zone.to.z") - plugin.maps.getInt(map + ".red.zone.from.z"));
-			}
-
-			spawn = new Location(Bukkit.getWorld(plugin.maps.getString(map + ".world")), x, y, z);
-			player.teleport(spawn);
-
+			playerManager.teleportToSpawn(map);
 		}
 
 		gameBroadcast("Build phase has started, you have " + (buildPhaseDuration / 60) + " minutes!");
@@ -256,6 +232,7 @@ public class Game {
 		for (PlayerManager playerManager : players.values()) {
 			Player player = playerManager.getPlayer();
 			player.setGameMode(GameMode.SURVIVAL);
+			playerManager.teleportToSpawn(map);
 		}
 
 		gameBroadcast("Raid phase has started, you have " + (raidPhaseDuration / 60) + " minutes!");
@@ -279,19 +256,29 @@ public class Game {
 
 	private void endGame() {
 		gameBroadcast("Game is over!");
-		deleteGame();
+		// deleteGame();
 	}
 
 	public void setTeam(Player player, Team team) {
 		PlayerManager playerManager = getPlayerManager(player);
 		if (team == Team.BLUE) {
-			playerManager.setTeam(Team.BLUE);
-			blueTeam.put(player.getName(), playerManager);
-			playerManager.sendMessage(ChatColor.GREEN, "You joined the blue team.");
+			if (blueTeam.size() < teamSize) {
+				playerManager.setTeam(Team.BLUE);
+				blueTeam.put(player.getName(), playerManager);
+				playerManager.sendMessage(ChatColor.GREEN, "You joined the blue team.");
+				playerManager.getPlayer().closeInventory();
+			} else {
+				playerManager.sendMessage(ChatColor.RED, "This team is full.");
+			}
 		} else if (team == Team.RED) {
-			playerManager.setTeam(Team.RED);
-			redTeam.put(player.getName(), playerManager);
-			playerManager.sendMessage(ChatColor.GREEN, "You joined the red team.");
+			if (redTeam.size() < teamSize) {
+				playerManager.setTeam(Team.RED);
+				redTeam.put(player.getName(), playerManager);
+				playerManager.sendMessage(ChatColor.GREEN, "You joined the red team.");
+				playerManager.getPlayer().closeInventory();
+			} else {
+				playerManager.sendMessage(ChatColor.RED, "This team is full.");
+			}
 		} else if (team == null) {
 			if (blueTeam.size() < teamSize) {
 				playerManager.setTeam(Team.BLUE);
