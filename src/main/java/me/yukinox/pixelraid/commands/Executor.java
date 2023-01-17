@@ -35,6 +35,9 @@ public class Executor implements CommandExecutor {
             case "build":
                 BuildCommand buildCommand = new BuildCommand(plugin);
                 return buildCommand.execute(player);
+            case "inventory":
+                BuildInventoryCommand buildInventoryCommand = new BuildInventoryCommand(plugin);
+                return buildInventoryCommand.execute(player);
             case "kit":
                 KitCommand kitCommand = new KitCommand(plugin);
                 return kitCommand.execute(player);
@@ -57,10 +60,11 @@ public class Executor implements CommandExecutor {
                     } else if (args[1].equalsIgnoreCase("spawn")) {
                         return setCommand.setSpawn(player, args[2]);
                     }
-                } else if (args.length == 5)
+                } else if (args.length == 5) {
                     if (args[1].equalsIgnoreCase("team") && args[2].equalsIgnoreCase("zone")) {
                         return setCommand.setTeamZone(player, args[3], args[4]);
                     }
+                }
                 return false;
         }
     }

@@ -4,6 +4,11 @@ joinMenu:
   title: "Join a raid"
 teamMenu:
   title: "Select a team"
+buildMenu:
+  items:
+    - DIRT
+    - STONE
+    - SAND
 gameSettings:
   preGameCountdown: 15 # Seconds
   buildPhaseDuration: 15 # Minutes

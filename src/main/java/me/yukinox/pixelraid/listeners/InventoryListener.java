@@ -34,7 +34,7 @@ public class InventoryListener implements Listener {
 	}
 
 	@EventHandler
-	void onInventoryClose(InventoryCloseEvent event) {
+	public void onInventoryClose(InventoryCloseEvent event) {
 		String menuTitle = event.getInventory().getTitle();
 
 		if (menuTitle.equals(plugin.config.getString("kitMenu.title"))) {

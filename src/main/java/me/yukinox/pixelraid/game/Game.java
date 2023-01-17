@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 
 import me.yukinox.pixelraid.PixelRaid;
+import me.yukinox.pixelraid.menus.BuildMenu;
 import me.yukinox.pixelraid.menus.KitMenu;
 import me.yukinox.pixelraid.menus.TeamMenu;
 import me.yukinox.pixelraid.utils.Enums.GameState;
@@ -174,7 +175,13 @@ public class Game {
 					for (PlayerManager playerManager : players.values()) {
 						Player player = playerManager.getPlayer();
 						if (blueTeam.get(player.getName()) == null && redTeam.get(player.getName()) == null) {
-							playerManager.setTeam(null);
+							// if (blueTeam.size() < teamSize) {
+							// playerManager.setTeam(Team.BLUE);
+							// playerManager.sendMessage(ChatColor.GREEN, "You joined the blue team.");
+							// } else {
+							// playerManager.setTeam(Team.RED);
+							// playerManager.sendMessage(ChatColor.GREEN, "You joined the red team.");
+							// }
 						}
 
 						if (player.getOpenInventory() != null) {
@@ -198,20 +205,22 @@ public class Game {
 		gameState = GameState.BUILDING;
 
 		// Opens the kit menu
-		KitMenu menu = new KitMenu(plugin);
+		KitMenu kitMenu = new KitMenu(plugin);
+		BuildMenu buildMenu = new BuildMenu(plugin);
 		for (PlayerManager playerManager : players.values()) {
 			Player player = playerManager.getPlayer();
 			player.getInventory().clear();
-			// player.setGameMode(GameMode.CREATIVE);
-			menu.open(player);
+			player.setGameMode(GameMode.CREATIVE);
+			buildMenu.load(player);
 			playerManager.teleportToSpawn(map);
+			kitMenu.open(player);
 		}
 
 		gameBroadcast("Build phase has started, you have " + (buildPhaseDuration / 60) + " minutes!");
 
 		buildPhaseTask = Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
 			// int countdown = buildPhaseDuration * 60;
-			int countdown = 10;
+			int countdown = 15;
 
 			public void run() {
 				if (countdown <= 0) {
@@ -231,6 +240,7 @@ public class Game {
 		gameState = GameState.RAID;
 		for (PlayerManager playerManager : players.values()) {
 			Player player = playerManager.getPlayer();
+			player.getInventory().clear();
 			player.setGameMode(GameMode.SURVIVAL);
 			playerManager.teleportToSpawn(map);
 		}
@@ -279,14 +289,6 @@ public class Game {
 			} else {
 				playerManager.sendMessage(ChatColor.RED, "This team is full.");
 			}
-		} else if (team == null) {
-			if (blueTeam.size() < teamSize) {
-				playerManager.setTeam(Team.BLUE);
-				playerManager.sendMessage(ChatColor.GREEN, "You joined the blue team.");
-			} else {
-				playerManager.setTeam(Team.RED);
-				playerManager.sendMessage(ChatColor.GREEN, "You joined the red team.");
-			}
 		}
 	}
 
@@ -304,6 +306,10 @@ public class Game {
 
 	public PlayerManager getPlayerManager(Player player) {
 		return players.get(player.getName());
+	}
+
+	public String getMap() {
+		return map;
 	}
 
 	private void deleteGame() {

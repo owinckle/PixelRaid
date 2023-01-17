@@ -12,7 +12,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import me.yukinox.pixelraid.PixelRaid;
 import me.yukinox.pixelraid.game.Game;
 import me.yukinox.pixelraid.game.PlayerManager;
-import me.yukinox.pixelraid.utils.Enums.GameState;
 import me.yukinox.pixelraid.utils.Enums.Team;
 
 public class TeamMenu {

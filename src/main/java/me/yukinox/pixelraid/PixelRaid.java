@@ -17,6 +17,7 @@ import me.yukinox.pixelraid.listeners.BreakListener;
 import me.yukinox.pixelraid.listeners.ClickListener;
 import me.yukinox.pixelraid.listeners.ConnectionListener;
 import me.yukinox.pixelraid.listeners.InventoryListener;
+import me.yukinox.pixelraid.listeners.BuildPhaseListener;
 import me.yukinox.pixelraid.listeners.PlayerInteractionsListener;
 import me.yukinox.pixelraid.utils.BlockPos;
 
@@ -53,6 +54,7 @@ public final class PixelRaid extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new ClickListener(this), this);
         getServer().getPluginManager().registerEvents(new BreakListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerInteractionsListener(this), this);
+        getServer().getPluginManager().registerEvents(new BuildPhaseListener(this), this);
 
         getCommand("raid").setExecutor(new Executor(this));
     }
