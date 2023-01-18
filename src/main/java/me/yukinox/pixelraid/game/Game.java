@@ -168,20 +168,18 @@ public class Game {
 
 		gameBroadcast("Team selection has started, you have 30 seconds!");
 		teamSelectionTask = Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
-			int countdown = 30;
+			int countdown = 10;
 
 			public void run() {
 				if (countdown <= 0) {
 					for (PlayerManager playerManager : players.values()) {
 						Player player = playerManager.getPlayer();
-						if (blueTeam.get(player.getName()) == null && redTeam.get(player.getName()) == null) {
-							// if (blueTeam.size() < teamSize) {
-							// playerManager.setTeam(Team.BLUE);
-							// playerManager.sendMessage(ChatColor.GREEN, "You joined the blue team.");
-							// } else {
-							// playerManager.setTeam(Team.RED);
-							// playerManager.sendMessage(ChatColor.GREEN, "You joined the red team.");
-							// }
+						if (playerManager.getTeam() == null) {
+							if (blueTeam.size() < teamSize) {
+								setTeam(player, Team.BLUE);
+							} else {
+								setTeam(player, Team.RED);
+							}
 						}
 
 						if (player.getOpenInventory() != null) {

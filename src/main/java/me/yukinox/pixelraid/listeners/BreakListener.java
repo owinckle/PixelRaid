@@ -1,5 +1,6 @@
 package me.yukinox.pixelraid.listeners;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -8,6 +9,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 
 import me.yukinox.pixelraid.PixelRaid;
 import me.yukinox.pixelraid.game.Game;
+import me.yukinox.pixelraid.utils.ActionInZone;
 import me.yukinox.pixelraid.utils.Enums.GameState;
 
 public class BreakListener implements Listener {
@@ -36,6 +38,15 @@ public class BreakListener implements Listener {
 
 		if (game.gameState == GameState.TEAM_SELECTION) {
 			event.setCancelled(true);
+		}
+
+		if (game.gameState == GameState.BUILDING || game.gameState == GameState.RAID) {
+			ActionInZone actionInZone = new ActionInZone(plugin);
+
+			if (!actionInZone.isInZone(event.getBlock(), game, player)) {
+				player.sendMessage(ChatColor.RED + "[Pixel Raid] You can't break here!");
+				event.setCancelled(true);
+			}
 		}
 	}
 }

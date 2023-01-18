@@ -29,16 +29,12 @@ public class ActionInZone {
 		} else {
 			teamString = ".red.zone.";
 		}
-		int fromX = plugin.getConfig().getInt(game.getMap() + teamString + "from.x");
-		int fromZ = plugin.getConfig().getInt(game.getMap() + teamString + "from.z");
-		int toX = plugin.getConfig().getInt(game.getMap() + teamString + "to.x");
-		int toZ = plugin.getConfig().getInt(game.getMap() + teamString + "to.z");
 
-		int minX = Math.min(fromX, toX);
-		int maxX = Math.max(fromX, toX);
-		int minZ = Math.min(fromZ, toZ);
-		int maxZ = Math.max(fromZ, toZ);
+		int fromX = plugin.maps.getInt(game.getMap() + teamString + "from.x");
+		int fromZ = plugin.maps.getInt(game.getMap() + teamString + "from.z");
+		int toX = plugin.maps.getInt(game.getMap() + teamString + "to.x");
+		int toZ = plugin.maps.getInt(game.getMap() + teamString + "to.z");
 
-		return blockX >= minX && blockX <= maxX && blockZ >= minZ && blockZ <= maxZ;
+		return blockX >= fromX && blockX <= toX && blockZ >= fromZ && blockZ <= toZ;
 	}
 }

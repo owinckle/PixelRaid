@@ -1,7 +1,6 @@
 package me.yukinox.pixelraid.listeners;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -11,10 +10,8 @@ import org.bukkit.inventory.ItemStack;
 
 import me.yukinox.pixelraid.PixelRaid;
 import me.yukinox.pixelraid.game.Game;
-import me.yukinox.pixelraid.game.PlayerManager;
 import me.yukinox.pixelraid.utils.ActionInZone;
 import me.yukinox.pixelraid.utils.Enums.GameState;
-import me.yukinox.pixelraid.utils.Enums.Team;
 
 public class BuildPhaseListener implements Listener {
 	PixelRaid plugin;

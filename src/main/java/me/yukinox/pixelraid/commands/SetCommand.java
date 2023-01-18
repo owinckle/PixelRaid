@@ -30,12 +30,19 @@ public class SetCommand {
 	}
 
 	private void setCoords(String source, BlockPos selection1, BlockPos selection2) {
-		plugin.maps.set(source + ".from.x", selection1.x);
-		plugin.maps.set(source + ".from.y", selection1.y);
-		plugin.maps.set(source + ".from.z", selection1.z);
-		plugin.maps.set(source + ".to.x", selection2.x);
-		plugin.maps.set(source + ".to.y", selection2.y);
-		plugin.maps.set(source + ".to.z", selection2.z);
+		int x1 = Math.min(selection1.x, selection2.x);
+		int y1 = Math.min(selection1.y, selection2.y);
+		int z1 = Math.min(selection1.z, selection2.z);
+		int x2 = Math.max(selection1.x, selection2.x);
+		int y2 = Math.max(selection1.y, selection2.y);
+		int z2 = Math.max(selection1.z, selection2.z);
+
+		plugin.maps.set(source + ".from.x", x1);
+		plugin.maps.set(source + ".from.y", y1);
+		plugin.maps.set(source + ".from.z", z1);
+		plugin.maps.set(source + ".to.x", x2);
+		plugin.maps.set(source + ".to.y", y2);
+		plugin.maps.set(source + ".to.z", z2);
 		plugin.saveMaps();
 	}
 
@@ -50,7 +57,7 @@ public class SetCommand {
 		}
 
 		BlockPos selection1 = plugin.builderSelection1.get(player.getName());
-		BlockPos selection2 = plugin.builderSelection1.get(player.getName());
+		BlockPos selection2 = plugin.builderSelection2.get(player.getName());
 		if (!isPositionValid(player, selection1, selection2)) {
 			return false;
 		}
@@ -73,7 +80,7 @@ public class SetCommand {
 		}
 
 		BlockPos selection1 = plugin.builderSelection1.get(player.getName());
-		BlockPos selection2 = plugin.builderSelection1.get(player.getName());
+		BlockPos selection2 = plugin.builderSelection2.get(player.getName());
 		if (!isPositionValid(player, selection1, selection2)) {
 			return false;
 		}
@@ -97,7 +104,7 @@ public class SetCommand {
 		}
 
 		BlockPos selection1 = plugin.builderSelection1.get(player.getName());
-		BlockPos selection2 = plugin.builderSelection1.get(player.getName());
+		BlockPos selection2 = plugin.builderSelection2.get(player.getName());
 		if (!isPositionValid(player, selection1, selection2)) {
 			return false;
 		}
