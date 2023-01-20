@@ -49,7 +49,7 @@ public class JoinMenu {
 
 		if (plugin.players.get(player.getName()) != null) {
 			if (plugin.players.get(player.getName()).teamSize == selectedMode + 1) {
-				player.sendMessage(ChatColor.RED + "[Pixel Raid] You're already in this queue");
+				player.sendMessage(ChatColor.RED + "[Pixel Raid] " + plugin.config.getString("alreadyInQueue"));
 				return;
 			}
 			plugin.players.get(player.getName()).removePlayer(player);
@@ -63,7 +63,14 @@ public class JoinMenu {
 			game = games.get(games.size() - 1);
 		}
 
-		game.addPlayer(player);
+		if (game.teamSize * 2 > game.getTotalPlayer()) {
+			game.addPlayer(player);
+		} else {
+			Game newGame = new Game(plugin, selectedMode + 1);
+			games.add(newGame);
+			newGame.addPlayer(player);
+		}
+
 		player.closeInventory();
 	}
 }

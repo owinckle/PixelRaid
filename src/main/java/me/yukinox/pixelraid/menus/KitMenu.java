@@ -57,7 +57,6 @@ public class KitMenu {
 			return;
 		}
 		game.setPlayerKit(player, selectedKit);
-
 		player.closeInventory();
 	}
 

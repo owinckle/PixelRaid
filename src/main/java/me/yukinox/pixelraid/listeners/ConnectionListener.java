@@ -30,12 +30,12 @@ public class ConnectionListener implements Listener {
 
 		if (game.gameState == GameState.WAITING_FOR_PLAYERS || game.gameState == GameState.PREPARATION) {
 			if (game.gameState == GameState.PREPARATION) {
-				game.gameBroadcast(ChatColor.RED + player.getName() + " left from the raid.");
+				game.gameBroadcast(ChatColor.RED + plugin.config.getString("messages.leftRaid").replace("{player}", player.getName()));
 				game.cancelPreparation();
 			}
 			game.removePlayer(player);
 		} else {
-			game.gameBroadcast(ChatColor.RED + player.getName() + " disconnected from the raid.");
+			game.gameBroadcast(ChatColor.RED + plugin.config.getString("messages.disconnected").replace("{player}", player.getName()));
 		}
 	}
 

@@ -10,8 +10,39 @@ buildMenu:
     - STONE
     - SAND
 gameSettings:
+  teamSelectionDuration: 30 # Seconds
   preGameCountdown: 15 # Seconds
   buildPhaseDuration: 15 # Minutes
   raidPhaseDuration: 15 # Minutes
   killReward: 20 # Dollars
   winReward: 500 # Dollars
+  flagHealth: 100
+  tntCooldown: 10 # Seconds
+  flagOffset: 1
+messages:
+  noMapAvailable: "No map available."
+  alreadyInGame: "You're already in a game."
+  leftQueue: "You left the queue."
+  gameStarting: "Game starting in {seconds} seconds."
+  selectTeam: "You have {seconds} to select a team."
+  countdown: "{seconds} seconds remaining."
+  buildStart: "Build phase has started, you have {minutes} minutes!"
+  raidStart: "Raid phase has started, you have {minutes} minutes!"
+  gameOver: "Game is over!"
+  blueWin: "Blue team won!"
+  redWin : "Red team won!"
+  joinBlue: "You joined the blue team."
+  joinRed: "You joined the red team."
+  teamFull: "This team is full."
+  kitSelected: "You selected the {kit} kit."
+  cantBreak: "You can't break here!"
+  selfDestroyFlag: "You can't destroy your own flag!"
+  cantBuild: "You can't build here!"
+  tntCooldown: "You can't place TNT yet"
+  itemNotAllowed: "You're not allowed to use this item."
+  leftRaid: "{player} left the raid"
+  disconnected: "{player} disconnected from the raid"
+  tntReceive: "You receive a tnt for killing {player}"
+  killMessage: "{player} was killed by {killer}"
+  alreadyInQueue: "You're already in this queue."
+  notInRaid: "You're not in a raid."

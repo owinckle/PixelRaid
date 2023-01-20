@@ -1,5 +1,6 @@
 package me.yukinox.pixelraid.listeners;
 
+import me.yukinox.pixelraid.game.PlayerManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -42,9 +43,13 @@ public class BreakListener implements Listener {
 
 		if (game.gameState == GameState.BUILDING || game.gameState == GameState.RAID) {
 			ActionInZone actionInZone = new ActionInZone(plugin);
+			PlayerManager playerManager = game.getPlayerManager(player);
 
-			if (!actionInZone.isInZone(event.getBlock(), game, player)) {
-				player.sendMessage(ChatColor.RED + "[Pixel Raid] You can't break here!");
+			if (!actionInZone.isInZone(event.getBlock(), game, playerManager.getTeam())) {
+				playerManager.sendMessage(ChatColor.RED, plugin.config.getString("messages.cantBreak"));
+				event.setCancelled(true);
+			} else if (event.getBlock().getType() == Material.BEACON) {
+				playerManager.sendMessage(ChatColor.RED, plugin.config.getString("messages.selfDestroyFlag"));
 				event.setCancelled(true);
 			}
 		}

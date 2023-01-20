@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 public class DisplayHelpCommand {
 
     public boolean execute(Player player) {
-        player.sendMessage(ChatColor.GOLD + "/raid join <teamSize>");
+        player.sendMessage(ChatColor.GOLD + "/raid - Open the raid menu");
         return true;
     }
 }

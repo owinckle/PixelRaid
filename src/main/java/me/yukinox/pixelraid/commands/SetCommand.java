@@ -124,4 +124,36 @@ public class SetCommand {
 						+ " has been set.");
 		return true;
 	}
+
+	public boolean setTeamSpawn(Player player, String color, String mapName) {
+		if (!isBuilder(player)) {
+			return false;
+		}
+
+		if (plugin.maps.getString(mapName) == null) {
+			player.sendMessage(ChatColor.RED + "[Pixel Raid] No map found with the name " + ChatColor.RED + mapName);
+			return false;
+		}
+
+		BlockPos selection1 = plugin.builderSelection1.get(player.getName());
+		BlockPos selection2 = plugin.builderSelection2.get(player.getName());
+		if (!isPositionValid(player, selection1, selection2)) {
+			return false;
+		}
+
+		if (!color.equals("blue") && !color.equals("red")) {
+			player.sendMessage(ChatColor.RED + "[Pixel Raid] Only teams available are RED and BLUE");
+			return false;
+		}
+
+		selection1.y++;
+		selection2.y++;
+		setCoords(mapName + "." + color + ".spawn", selection1, selection2);
+
+		player.sendMessage(
+				ChatColor.GREEN + "[Pixel Raid] Team " + color + " team's zone for " + ChatColor.GOLD + mapName
+						+ ChatColor.GREEN
+						+ " has been set.");
+		return true;
+	}
 }

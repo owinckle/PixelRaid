@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import me.yukinox.pixelraid.listeners.*;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -13,12 +14,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import me.yukinox.pixelraid.commands.Executor;
 import me.yukinox.pixelraid.game.Game;
-import me.yukinox.pixelraid.listeners.BreakListener;
-import me.yukinox.pixelraid.listeners.ClickListener;
-import me.yukinox.pixelraid.listeners.ConnectionListener;
-import me.yukinox.pixelraid.listeners.InventoryListener;
-import me.yukinox.pixelraid.listeners.BuildPhaseListener;
-import me.yukinox.pixelraid.listeners.PlayerInteractionsListener;
 import me.yukinox.pixelraid.utils.BlockPos;
 
 public final class PixelRaid extends JavaPlugin {
@@ -55,6 +50,8 @@ public final class PixelRaid extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new BreakListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerInteractionsListener(this), this);
         getServer().getPluginManager().registerEvents(new BuildPhaseListener(this), this);
+        getServer().getPluginManager().registerEvents(new TntListener(this), this);
+        getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
 
         getCommand("raid").setExecutor(new Executor(this));
     }

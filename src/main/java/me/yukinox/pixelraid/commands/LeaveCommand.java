@@ -19,7 +19,7 @@ public class LeaveCommand {
 			game.removePlayer(player);
 			return true;
 		} else {
-			player.sendMessage(ChatColor.RED + "[Pixel Raid] You're not in a raid.");
+			player.sendMessage(ChatColor.RED + "[Pixel Raid] " + plugin.config.getString("messages.notInRaid"));
 			return false;
 		}
 	}

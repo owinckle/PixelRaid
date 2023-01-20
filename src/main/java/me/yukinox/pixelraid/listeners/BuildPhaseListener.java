@@ -1,7 +1,11 @@
 package me.yukinox.pixelraid.listeners;
 
+import me.yukinox.pixelraid.game.PlayerManager;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -29,16 +33,28 @@ public class BuildPhaseListener implements Listener {
 			return;
 		}
 
-		ItemStack item = event.getItemInHand();
+		Block block = event.getBlock();
+		PlayerManager playerManager = game.getPlayerManager(player);
 		if (game.gameState == GameState.BUILDING || game.gameState == GameState.RAID) {
-			if (item != null && !plugin.config.getStringList("buildMenu.items").contains(item.getType().name())) {
-				event.setCancelled(true);
-				player.sendMessage(ChatColor.RED + "[Pixel Raid] You're not allowed to use this item.");
+			if (block != null && !plugin.config.getStringList("buildMenu.items").contains(block.getType().name())) {
+				if (block.getType() == Material.TNT && game.gameState == GameState.RAID) {
+					if (!playerManager.canPlaceTnt()) {
+						event.setCancelled(true);
+						playerManager.sendMessage(ChatColor.RED, plugin.config.getString("messages.tntCooldown"));
+						return;
+					}
+					block.getWorld().spawn(block.getLocation(), TNTPrimed.class);
+					block.setType(Material.AIR);
+					playerManager.updateTntCooldown();
+				} else {
+					event.setCancelled(true);
+					playerManager.sendMessage(ChatColor.RED, plugin.config.getString("messages.itemNotAllowed"));
+				}
 			} else {
 				ActionInZone actionInZone = new ActionInZone(plugin);
 
-				if (!actionInZone.isInZone(event.getBlock(), game, player)) {
-					player.sendMessage(ChatColor.RED + "[Pixel Raid] You can't build here!");
+				if (!actionInZone.isInZone(block, game, playerManager.getTeam())) {
+					playerManager.sendMessage(ChatColor.RED, plugin.config.getString("messages.cantBuild"));
 					event.setCancelled(true);
 				}
 			}
