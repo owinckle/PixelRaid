@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 
 import me.yukinox.pixelraid.PixelRaid;
@@ -88,8 +89,26 @@ public class PlayerManager {
 			ConfigurationSection itemSection = itemsSection.getConfigurationSection(key);
 			String id = itemSection.getString("id");
 			int amount = itemSection.getInt("amount");
-			ItemStack item = new ItemStack(Material.getMaterial(id), amount);
-			getPlayer().getInventory().addItem(item);
+
+			try {
+				Material mat = Material.getMaterial(id);
+				if (mat != null) {
+				ItemStack item = new ItemStack(mat, amount);
+				String enchant = itemSection.getString("enchant");
+				Integer enchantLevel = itemSection.getInt("enchantLevel");
+				if (enchant != null && enchantLevel != null) {
+					Enchantment enchantment = Enchantment.getByName(enchant);
+					if (enchantment != null) {
+					item.addEnchantment(enchantment, enchantLevel);
+					}
+				}
+				getPlayer().getInventory().addItem(item);
+				} else {
+					System.out.println("[Pixel Raid] Item " + id + " doesn't exist.");
+				}
+			} catch (IllegalArgumentException e) {
+				System.out.println("[Pixel Raid] Item " + id + " doesn't exist.");
+			}
 		}
 	}
 

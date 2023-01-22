@@ -27,6 +27,7 @@ public class Executor implements CommandExecutor {
         LeaveCommand leaveCommand = new LeaveCommand(plugin);
         SetCommand setCommand = new SetCommand(plugin);
         JoinCommand joinCommand = new JoinCommand(plugin);
+        KitCommand kitCommand = new KitCommand(plugin);
 
         if (args.length == 0) {
             return joinCommand.execute(player);
@@ -42,6 +43,13 @@ public class Executor implements CommandExecutor {
                 return buildCommand.execute(player);
             case "leave":
                 return leaveCommand.execute(player);
+            case "stop":
+                return false;
+            case "kit":
+                if (args.length != 2) {
+                    return false;
+                }
+                return kitCommand.execute(player, args[1]);
             case "set":
                 if (args.length < 3) {
                     return false;

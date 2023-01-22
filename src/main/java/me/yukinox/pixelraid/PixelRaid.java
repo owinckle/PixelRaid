@@ -65,7 +65,7 @@ public final class PixelRaid extends JavaPlugin {
         config = getConfig();
     }
 
-    private void loadKits() {
+    public void loadKits() {
         kitsFile = new File(getDataFolder(), "kits.yml");
         kits = YamlConfiguration.loadConfiguration(kitsFile);
 

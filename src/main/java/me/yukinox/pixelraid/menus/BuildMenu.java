@@ -24,8 +24,13 @@ public class BuildMenu {
 
 		List<String> items = plugin.config.getStringList("buildMenu.items");
 		for (String item : items) {
-			ItemStack itemStack = new ItemStack(Material.getMaterial(item));
-			inventory.addItem(itemStack);
+			Material mat = Material.getMaterial(item);
+			if (mat != null) {
+				ItemStack itemStack = new ItemStack(mat, 1);
+				inventory.addItem(itemStack);
+			} else {
+				System.out.println("[Pixel Raid] Item " + item + " doesn't exist.");
+			}
 		}
 	}
 }

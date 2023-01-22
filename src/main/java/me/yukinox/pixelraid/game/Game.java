@@ -136,6 +136,7 @@ public class Game {
 		if (maps.isEmpty()) {
 			gameBroadcast(plugin.config.getString("messages.noMapAvailable"));
 			deleteGame();
+			return;
 		}
 
 		Random rand = new Random();
@@ -230,12 +231,12 @@ public class Game {
 		toX = plugin.maps.getInt(map + ".red.zone.to.x");
 		fromZ = plugin.maps.getInt(map + ".red.zone.from.z");
 		toZ = plugin.maps.getInt(map + ".red.zone.to.z");
+		y = plugin.maps.getInt(map + ".red.zone.from.y") - 1;
 
 		x = fromX + offset + rand.nextInt(toX - fromX - (offset * 2) + 1);
 		z = fromZ + offset + rand.nextInt(toZ - fromZ - (offset * 2) + 1);
 		Location redLoc = new Location(Bukkit.getWorld(plugin.maps.getString(map + ".world")), x, y, z);
 		redLoc.getBlock().setType(Material.BEACON);
-
 
 		// Opens the kit menu
 		KitMenu kitMenu = new KitMenu(plugin);
@@ -444,10 +445,12 @@ public class Game {
 		}
 
 		int key = teamSize - 1;
-		ArrayList<Game> gameList = plugin.games.get(key);
-		gameList.remove(this);
-		if (gameList.isEmpty()) {
-			plugin.games.remove(key);
+		if (plugin.games.get(key) != null) {
+			ArrayList<Game> gameList = plugin.games.get(key);
+			gameList.remove(this);
+			if (gameList.isEmpty()) {
+				plugin.games.remove(key);
+			}
 		}
 
 		plugin.activeMaps.remove(map);

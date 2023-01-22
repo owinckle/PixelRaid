@@ -5,6 +5,8 @@ kits:
       "1":
         id: "BOW"
         amount: 1
+        enchant: "SHARPNESS"
+        enchantLevel: 3
       "2":
         id: "ARROW"
         amount: 32
