@@ -34,9 +34,11 @@ public class BuildPhaseListener implements Listener {
 		}
 
 		Block block = event.getBlock();
+		if (block == null) return;
+
 		PlayerManager playerManager = game.getPlayerManager(player);
 		if (game.gameState == GameState.BUILDING || game.gameState == GameState.RAID) {
-			if (block != null && !plugin.config.getStringList("buildMenu.items").contains(block.getType().name())) {
+			if (!plugin.config.getStringList("buildMenu.items").contains(block.getType().name())) {
 				if (block.getType() == Material.TNT && game.gameState == GameState.RAID) {
 					if (!playerManager.canPlaceTnt()) {
 						event.setCancelled(true);
@@ -54,8 +56,8 @@ public class BuildPhaseListener implements Listener {
 				ActionInZone actionInZone = new ActionInZone(plugin);
 
 				if (!actionInZone.isInZone(block, game, playerManager.getTeam())) {
-					playerManager.sendMessage(ChatColor.RED, plugin.config.getString("messages.cantBuild"));
 					event.setCancelled(true);
+					playerManager.sendMessage(ChatColor.RED, plugin.config.getString("messages.cantBuild"));
 				}
 			}
 		}
