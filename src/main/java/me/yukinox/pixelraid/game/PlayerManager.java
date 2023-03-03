@@ -12,7 +12,12 @@ import me.yukinox.pixelraid.PixelRaid;
 import me.yukinox.pixelraid.utils.Enums.Team;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Score;
+import org.bukkit.scoreboard.Scoreboard;
 
+import java.io.File;
 import java.util.Set;
 
 public class PlayerManager {
@@ -29,6 +34,12 @@ public class PlayerManager {
 	private Boolean tntPlaced = false;
 	private BukkitTask tntCooldownTask;
 
+	// Scoreboard
+	private Scoreboard scoreboard;
+	private Objective objective;
+
+	private Boolean teamChat = true;
+
 	public PlayerManager(PixelRaid plugin, String name) {
 		this.plugin = plugin;
 		this.name = name;
@@ -37,6 +48,20 @@ public class PlayerManager {
 	public Player getPlayer() {
 		Player player = Bukkit.getPlayer(name);
 		return player;
+	}
+
+	public void toggleChat() {
+		if (teamChat) {
+			teamChat = false;
+			sendMessage(ChatColor.GREEN, "Switched to global chat.");
+		} else {
+			teamChat = true;
+			sendMessage(ChatColor.GREEN, "Switched to team chat.");
+		}
+	}
+
+	public Boolean isTeamChat() {
+		return teamChat;
 	}
 
 	public void sendMessage(ChatColor color, String message) {
@@ -75,10 +100,12 @@ public class PlayerManager {
 
 	public void addDeath() {
 		deaths++;
+		scoreboard.getTeam("deathsString").setPrefix(ChatColor.translateAlternateColorCodes('&', plugin.config.getString("scoreboard.info.deaths").replace("{deaths}", deaths.toString())));
 	}
 
 	public void addKill() {
 		kills++;
+		scoreboard.getTeam("killsString").setPrefix(ChatColor.translateAlternateColorCodes('&', plugin.config.getString("scoreboard.info.kills").replace("{kills}", kills.toString())));
 	}
 
 	public void loadKit() {
@@ -93,16 +120,27 @@ public class PlayerManager {
 			try {
 				Material mat = Material.getMaterial(id);
 				if (mat != null) {
-				ItemStack item = new ItemStack(mat, amount);
-				String enchant = itemSection.getString("enchant");
-				Integer enchantLevel = itemSection.getInt("enchantLevel");
-				if (enchant != null && enchantLevel != null) {
-					Enchantment enchantment = Enchantment.getByName(enchant);
-					if (enchantment != null) {
-					item.addEnchantment(enchantment, enchantLevel);
+					ItemStack item = new ItemStack(mat, amount);
+					String enchant = itemSection.getString("enchant");
+					Integer enchantLevel = itemSection.getInt("enchantLevel");
+					if (enchant != null && enchantLevel != null) {
+						Enchantment enchantment = Enchantment.getByName(enchant);
+						if (enchantment != null) {
+						item.addEnchantment(enchantment, enchantLevel);
+						}
 					}
-				}
-				getPlayer().getInventory().addItem(item);
+
+					if (mat.name().endsWith("HELMET")) {
+						getPlayer().getInventory().setHelmet(item);
+					} else if (mat.name().endsWith("CHESTPLATE")) {
+						getPlayer().getInventory().setChestplate(item);
+					} else if (mat.name().endsWith("LEGGINGS")) {
+						getPlayer().getInventory().setLeggings(item);
+					} else if (mat.name().endsWith("BOOTS")) {
+						getPlayer().getInventory().setBoots(item);
+					} else {
+						getPlayer().getInventory().addItem(item);
+					}
 				} else {
 					System.out.println("[Pixel Raid] Item " + id + " doesn't exist.");
 				}
@@ -150,5 +188,81 @@ public class PlayerManager {
 			Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "eco give " + getPlayer().getName() + " " + winReward);
 		}
 		Bukkit.dispatchCommand(Bukkit.getConsoleSender(), "eco give " + getPlayer().getName() + " " + killReward * kills);
+	}
+
+	public void updateFlagHealth(Team team, Integer health) {
+		if (team == Team.BLUE) {
+			scoreboard.getTeam("blueFlag").setPrefix(ChatColor.translateAlternateColorCodes('&', plugin.config.getString("scoreboard.flags.blue").replace("{hp}", health.toString())));
+		} else {
+			scoreboard.getTeam("redFlag").setPrefix(ChatColor.translateAlternateColorCodes('&', plugin.config.getString("scoreboard.flags.red").replace("{hp}", health.toString())));
+		}
+	}
+
+	public void generateScoreboard() {
+		scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+		objective = scoreboard.registerNewObjective("stats", "dummy");
+		Integer initFlagHealth = plugin.config.getInt("gameSettings.flagHealth");
+
+		String title = ChatColor.translateAlternateColorCodes('&', plugin.config.getString("scoreboard.title"));
+		String flagTitle = ChatColor.translateAlternateColorCodes('&', plugin.config.getString("scoreboard.flags.title"));
+
+		org.bukkit.scoreboard.Team blueFlag = scoreboard.registerNewTeam("blueFlag");
+		blueFlag.addEntry("");
+		blueFlag.setPrefix(ChatColor.translateAlternateColorCodes('&', plugin.config.getString("scoreboard.flags.blue").replace("{hp}", initFlagHealth.toString())));
+
+		org.bukkit.scoreboard.Team redFlag = scoreboard.registerNewTeam("redFlag");
+		redFlag.addEntry(" ");
+		redFlag.setPrefix(ChatColor.translateAlternateColorCodes('&', plugin.config.getString("scoreboard.flags.red").replace("{hp}", initFlagHealth.toString())));
+
+		String infoTitle = ChatColor.translateAlternateColorCodes('&', plugin.config.getString("scoreboard.info.title"));
+		String teamBlue = ChatColor.translateAlternateColorCodes('&', plugin.config.getString("scoreboard.info.teamBlue"));
+		String teamRed = ChatColor.translateAlternateColorCodes('&', plugin.config.getString("scoreboard.info.teamRed"));
+
+		org.bukkit.scoreboard.Team killsString = scoreboard.registerNewTeam("killsString");
+		killsString.addEntry("  ");
+		killsString.setPrefix(ChatColor.translateAlternateColorCodes('&', plugin.config.getString("scoreboard.info.kills").replace("{kills}", kills.toString())));
+
+		org.bukkit.scoreboard.Team deathsString = scoreboard.registerNewTeam("deathsString");
+		deathsString.addEntry("   ");
+		deathsString.setPrefix(ChatColor.translateAlternateColorCodes('&', plugin.config.getString("scoreboard.info.deaths").replace("{deaths}", deaths.toString())));
+
+
+		Score flagHealthSpacer = objective.getScore(flagTitle);
+		Score blueFlagScore = objective.getScore(""); // 0
+		Score redFlagScore = objective.getScore(" "); // 1
+		Score infoSpacer = objective.getScore(infoTitle);
+		Score killScore = objective.getScore("  "); // 2
+		Score deathScore = objective.getScore("   "); // 3
+		Score spacerScore1 = objective.getScore("    "); // 4
+		Score spacerScore2 = objective.getScore("     "); // 5
+		Score teamScore;
+
+		if (team == Team.BLUE) {
+			teamScore = objective.getScore(teamBlue);
+		} else {
+			teamScore = objective.getScore(teamRed);
+		}
+
+        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+		objective.setDisplayName(title);
+		spacerScore1.setScore(9);
+		flagHealthSpacer.setScore(8);
+		blueFlagScore.setScore(7);
+		redFlagScore.setScore(6);
+		spacerScore2.setScore(5);
+		infoSpacer.setScore(4);
+		teamScore.setScore(3);
+		killScore.setScore(2);
+		deathScore.setScore(1);
+
+		getPlayer().setScoreboard(scoreboard);
+	}
+
+	public void removeScoreboard() {
+		try {
+			objective.unregister();
+		} catch (IllegalStateException e) {
+			e.printStackTrace();
+		}
 	}
 }

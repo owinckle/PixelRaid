@@ -63,6 +63,15 @@ public class BuildPhaseListener implements Listener {
 
 	@EventHandler
 	public void onBlockDrop(PlayerDropItemEvent event) {
-		event.setCancelled(true);
+		Player player = event.getPlayer();
+		Game game = plugin.players.get(player.getName());
+
+		if (game == null) {
+			return ;
+		}
+
+		if (game.gameState == GameState.BUILDING) {
+			event.setCancelled(true);
+		}
 	}
 }

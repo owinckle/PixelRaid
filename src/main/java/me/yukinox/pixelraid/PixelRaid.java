@@ -52,6 +52,7 @@ public final class PixelRaid extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new BuildPhaseListener(this), this);
         getServer().getPluginManager().registerEvents(new TntListener(this), this);
         getServer().getPluginManager().registerEvents(new PlayerDeathListener(this), this);
+        getServer().getPluginManager().registerEvents(new ChatListener(this), this);
 
         getCommand("raid").setExecutor(new Executor(this));
     }

@@ -28,6 +28,7 @@ public class Executor implements CommandExecutor {
         SetCommand setCommand = new SetCommand(plugin);
         JoinCommand joinCommand = new JoinCommand(plugin);
         KitCommand kitCommand = new KitCommand(plugin);
+        ToggleChatCommand toggleChatCommand = new ToggleChatCommand(plugin);
 
         if (args.length == 0) {
             return joinCommand.execute(player);
@@ -45,6 +46,8 @@ public class Executor implements CommandExecutor {
                 return leaveCommand.execute(player);
             case "stop":
                 return false;
+            case "chat":
+                return toggleChatCommand.execute(player);
             case "kit":
                 if (args.length != 2) {
                     return false;

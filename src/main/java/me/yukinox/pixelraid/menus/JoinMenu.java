@@ -2,6 +2,7 @@ package me.yukinox.pixelraid.menus;
 
 import java.util.ArrayList;
 
+import me.yukinox.pixelraid.utils.Enums;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -22,7 +23,7 @@ public class JoinMenu {
 	}
 
 	public void open(Player player) {
-		Inventory menu = Bukkit.createInventory(null, 9 * 3, plugin.config.getString("joinMenu.title"));
+		Inventory menu = Bukkit.createInventory(null, 9 * 2, plugin.config.getString("joinMenu.title"));
 
 		for (Integer i = 1; i <= 10; i++) {
 			ItemStack itemStack = new ItemStack(Material.getMaterial("IRON_SWORD"), i);
@@ -49,7 +50,7 @@ public class JoinMenu {
 
 		if (plugin.players.get(player.getName()) != null) {
 			if (plugin.players.get(player.getName()).teamSize == selectedMode + 1) {
-				player.sendMessage(ChatColor.RED + "[Pixel Raid] " + plugin.config.getString("alreadyInQueue"));
+				player.sendMessage(ChatColor.RED + "[Pixel Raid] " + plugin.config.getString("messages.alreadyInQueue"));
 				return;
 			}
 			plugin.players.get(player.getName()).removePlayer(player);
@@ -63,7 +64,7 @@ public class JoinMenu {
 			game = games.get(games.size() - 1);
 		}
 
-		if (game.teamSize * 2 > game.getTotalPlayer()) {
+		if (game.teamSize * 2 > game.getTotalPlayer() && game.gameState == Enums.GameState.WAITING_FOR_PLAYERS) {
 			game.addPlayer(player);
 		} else {
 			Game newGame = new Game(plugin, selectedMode + 1);

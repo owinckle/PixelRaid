@@ -1,3 +1,0 @@
-- Catch lethal damage and cancel it but count it as a kill
-- Generate a wall to seperate the two teams during build phase, kill the wall afterwards
-- Detect build zones

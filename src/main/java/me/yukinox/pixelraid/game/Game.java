@@ -20,7 +20,7 @@ import me.yukinox.pixelraid.utils.Enums.Team;
 public class Game {
 	private PixelRaid plugin;
 
-	private HashMap<String, PlayerManager> players = new HashMap<String, PlayerManager>();
+	public HashMap<String, PlayerManager> players = new HashMap<String, PlayerManager>();
 
 	public Integer teamSize;
 	private HashMap<String, PlayerManager> blueTeam = new HashMap<String, PlayerManager>();
@@ -39,9 +39,6 @@ public class Game {
 	private BukkitTask teamSelectionTask;
 	private BukkitTask buildPhaseTask;
 	private BukkitTask raidPhaseTask;
-	private BukkitTask redUnderAttackMessage;
-	private BukkitTask blueUnderAttackMessage;
-
 	public GameState gameState = GameState.WAITING_FOR_PLAYERS;
 
 	public Game(PixelRaid plugin, Integer teamSize) {
@@ -95,6 +92,11 @@ public class Game {
 		gameBroadcast(teamSize + "vs" + teamSize + ": " + ChatColor.GREEN + players.size() + "/" + (teamSize * 2));
 	}
 
+	public void forceRemovePlayer(Player player) {
+		players.remove(player.getName());
+		plugin.players.remove(player.getName());
+	}
+
 	private void startPreparation() {
 		gameState = GameState.PREPARATION;
 
@@ -146,6 +148,7 @@ public class Game {
 
 		for (PlayerManager playerManager : players.values()) {
 			Player player = playerManager.getPlayer();
+			InventoryManager inventoryManager = new InventoryManager(plugin);
 
 			// Teleports the player to the spawn
 			double x = plugin.maps.getInt(map + ".spawn.from.x") + Math.random()
@@ -155,7 +158,13 @@ public class Game {
 			double z = plugin.maps.getInt(map + ".spawn.from.z") + Math.random()
 					* (plugin.maps.getInt(map + ".spawn.to.z") - plugin.maps.getInt(map + ".spawn.from.z"));
 			Location spawn = new Location(Bukkit.getWorld(plugin.maps.getString(map + ".world")), x, y, z);
+
+			inventoryManager.saveInventory(player);
 			player.getInventory().clear();
+			player.getInventory().setArmorContents(null);
+			player.setLevel(0);
+			player.setExp(0);
+			player.setTotalExperience(0);
 			player.setGameMode(GameMode.SURVIVAL);
 			player.teleport(spawn);
 
@@ -179,7 +188,7 @@ public class Game {
 		}
 
 		teamSelectionTask = Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
-			Integer countdown = 10;
+			Integer countdown = teamSelectionDuration;
 
 			public void run() {
 				if (countdown <= 0) {
@@ -238,12 +247,11 @@ public class Game {
 		Location redLoc = new Location(Bukkit.getWorld(plugin.maps.getString(map + ".world")), x, y, z);
 		redLoc.getBlock().setType(Material.BEACON);
 
-		// Opens the kit menu
 		KitMenu kitMenu = new KitMenu(plugin);
 		BuildMenu buildMenu = new BuildMenu(plugin);
 		for (PlayerManager playerManager : players.values()) {
 			Player player = playerManager.getPlayer();
-			player.getInventory().clear();
+			playerManager.generateScoreboard();
 			player.setGameMode(GameMode.CREATIVE);
 			buildMenu.load(player);
 			playerManager.teleportToSpawn(map);
@@ -254,12 +262,12 @@ public class Game {
 		gameBroadcast(plugin.config.getString("messages.buildStart").replace("{minutes}", buildDuration.toString()));
 
 		buildPhaseTask = Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
-			Integer countdown = buildPhaseDuration * 60;
+			Integer countdown = buildPhaseDuration;
 
 			public void run() {
 				if (countdown <= 0) {
-					startRaidPhase();
 					buildPhaseTask.cancel();
+					startRaidPhase();
 				}
 
 				if (countdown <= 5 && countdown > 0) {
@@ -274,6 +282,7 @@ public class Game {
 		gameState = GameState.RAID;
 		for (PlayerManager playerManager : players.values()) {
 			Player player = playerManager.getPlayer();
+
 			player.getInventory().clear();
 			player.setGameMode(GameMode.SURVIVAL);
 
@@ -296,20 +305,18 @@ public class Game {
 
 			Location spawn = new Location(Bukkit.getWorld(plugin.maps.getString(map + ".world")), x, y, z);
 			player.teleport(spawn);
-            playerManager.loadKit();
-
 			playerManager.loadKit();
 		}
 
 		Integer raidDuration = raidPhaseDuration / 60;
 		gameBroadcast(plugin.config.getString("messages.raidStart").replace("{minutes}", raidDuration.toString()));
 		raidPhaseTask = Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
-			Integer countdown = raidPhaseDuration * 60;
+			Integer countdown = raidPhaseDuration;
 
 			public void run() {
 				if (countdown <= 0) {
-					endGame();
 					raidPhaseTask.cancel();
+					endGame();
 				}
 
 				if (countdown <= 5 && countdown > 0) {
@@ -324,7 +331,10 @@ public class Game {
 		gameBroadcast(plugin.config.getString("messages.gameOver"));
 
 		Team winningTeam;
-		if (blueTeamFlag > redTeamFlag) {
+		if (blueTeamFlag == redTeamFlag) {
+			gameBroadcast(plugin.config.getString("messages.draw"));
+			winningTeam = null;
+		} else if (blueTeamFlag > redTeamFlag) {
 			gameBroadcast(plugin.config.getString("messages.blueWin"));
 			winningTeam = Team.BLUE;
 		} else {
@@ -332,9 +342,17 @@ public class Game {
 			winningTeam = Team.RED;
 		}
 
+		if (winningTeam == null) {
+			winReward = winReward / 2;
+		}
 		for (PlayerManager playerManager : players.values()) {
-			playerManager.giveReward(killReward, winReward, playerManager.getTeam() == winningTeam);
+			playerManager.removeScoreboard();
+			playerManager.giveReward(killReward, winReward, playerManager.getTeam() == winningTeam || winningTeam == null);
 			playerManager.getPlayer().getInventory().clear();
+			playerManager.getPlayer().getInventory().setArmorContents(null);
+
+			InventoryManager inventoryManager = new InventoryManager(plugin);
+			inventoryManager.restoreInventory(playerManager.getPlayer());
 		}
 
 		resetZones();
@@ -382,12 +400,17 @@ public class Game {
 	}
 
 	public void damageFlag(Team team) {
+		Integer newFlagHealth;
 		if (team == Team.BLUE) {
 			blueTeamFlag--;
-			// gameBroadcast("Blue team's flag is under attack!");
+			newFlagHealth = blueTeamFlag;
 		} else {
 			redTeamFlag--;
-			// gameBroadcast("Red team's flag is under attack!");
+			newFlagHealth = redTeamFlag;
+		}
+
+		for (PlayerManager playerManager : players.values()) {
+			playerManager.updateFlagHealth(team, newFlagHealth);
 		}
 
 		if (blueTeamFlag == 0 || redTeamFlag == 0) {

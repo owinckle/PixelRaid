@@ -29,6 +29,7 @@ messages:
   buildStart: "Build phase has started, you have {minutes} minutes!"
   raidStart: "Raid phase has started, you have {minutes} minutes!"
   gameOver: "Game is over!"
+  draw: "It's a draw!"
   blueWin: "Blue team won!"
   redWin : "Red team won!"
   joinBlue: "You joined the blue team."
@@ -42,7 +43,19 @@ messages:
   itemNotAllowed: "You're not allowed to use this item."
   leftRaid: "{player} left the raid"
   disconnected: "{player} disconnected from the raid"
-  tntReceive: "You receive a tnt for killing {player}"
+  tntReceived: "You received a tnt for killing {player}"
   killMessage: "{player} was killed by {killer}"
   alreadyInQueue: "You're already in this queue."
   notInRaid: "You're not in a raid."
+scoreboard:
+  title: "&dPixelRaid"
+  flags:
+    title: "&6Flags"
+    blue: "&9❤ {hp}"
+    red: "&c❤ {hp}"
+  info:
+    title: "&6Info"
+    teamBlue: "Team: &9Blue"
+    teamRed: "Team: &cRed"
+    kills: "Kills: {kills}"
+    deaths: "Deaths: {deaths}"

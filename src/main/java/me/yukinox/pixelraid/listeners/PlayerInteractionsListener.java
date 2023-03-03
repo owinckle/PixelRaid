@@ -41,6 +41,9 @@ public class PlayerInteractionsListener implements Listener {
 		}
 
 		Game game = damagerGame;
+		if (game == null) {
+			return;
+		}
 
 		if (game.gameState == GameState.BUILDING || game.gameState == GameState.TEAM_SELECTION) {
 			event.setCancelled(true);
@@ -49,19 +52,18 @@ public class PlayerInteractionsListener implements Listener {
 
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
-		if (!(event.getClickedBlock() instanceof Block)) {
-			return;
-		}
-
-		if (event.getClickedBlock().getType() != Material.BEACON) {
-			return;
-		}
+		if (event.getClickedBlock() == null) return ;
+		if (event.getClickedBlock().getType() != Material.BEACON) return;
 
 		Block flag = event.getClickedBlock();
 		Player player = event.getPlayer();
 		Game game = plugin.players.get(player.getName());
 
 		if (game == null || flag == null) {
+			return ;
+		}
+
+		if (game.gameState == GameState.PREPARATION || game.gameState == GameState.WAITING_FOR_PLAYERS) {
 			return ;
 		}
 

@@ -1,5 +1,6 @@
 package me.yukinox.pixelraid.listeners;
 
+import me.yukinox.pixelraid.game.InventoryManager;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -32,15 +33,18 @@ public class ConnectionListener implements Listener {
 			if (game.gameState == GameState.PREPARATION) {
 				game.gameBroadcast(ChatColor.RED + plugin.config.getString("messages.leftRaid").replace("{player}", player.getName()));
 				game.cancelPreparation();
+				game.removePlayer(player);
 			}
-			game.removePlayer(player);
 		} else {
 			game.gameBroadcast(ChatColor.RED + plugin.config.getString("messages.disconnected").replace("{player}", player.getName()));
+			game.forceRemovePlayer(player);
 		}
 	}
 
 	@EventHandler
 	public void onPlayerJoin(PlayerJoinEvent event) {
-		// Notify the user that he can reconnect to the raid using /raid reconnect
+		Player player = event.getPlayer();
+		InventoryManager inventoryManager = new InventoryManager(plugin);
+		inventoryManager.restoreInventory(player);
 	}
 }
