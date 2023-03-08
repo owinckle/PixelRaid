@@ -45,7 +45,7 @@ public class JoinMenu {
 		}
 
 		Player player = (Player) event.getWhoClicked();
-		Integer selectedMode = event.getSlot();
+		int selectedMode = event.getSlot();
 		ArrayList<Game> games = plugin.games.computeIfAbsent(selectedMode, k -> new ArrayList<>());
 
 		if (plugin.players.get(player.getName()) != null) {

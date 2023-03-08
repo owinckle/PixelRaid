@@ -53,10 +53,10 @@ public class PlayerManager {
 	public void toggleChat() {
 		if (teamChat) {
 			teamChat = false;
-			sendMessage(ChatColor.GREEN, "Switched to global chat.");
+			sendMessage(ChatColor.GREEN, plugin.config.getString("messages.chatSwitchToGlobal"));
 		} else {
 			teamChat = true;
-			sendMessage(ChatColor.GREEN, "Switched to team chat.");
+			sendMessage(ChatColor.GREEN, plugin.config.getString("messages.chatSwitchToTeam"));
 		}
 	}
 

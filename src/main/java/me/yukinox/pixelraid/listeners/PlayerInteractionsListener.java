@@ -63,7 +63,7 @@ public class PlayerInteractionsListener implements Listener {
 			return ;
 		}
 
-		if (game.gameState == GameState.PREPARATION || game.gameState == GameState.WAITING_FOR_PLAYERS) {
+		if (game.gameState != GameState.RAID) {
 			return ;
 		}
 

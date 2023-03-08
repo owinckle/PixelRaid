@@ -16,7 +16,7 @@ public class ToggleChatCommand {
     public boolean execute(Player player) {
         Game game = plugin.players.get(player.getName());
 		if (game == null) {
-            player.sendMessage(ChatColor.GOLD + "[PIXEL RAID] You're not in a game.");
+            player.sendMessage(ChatColor.GOLD + plugin.config.getString("messages.notInRaid"));
             return false;
 		}
 

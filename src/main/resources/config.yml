@@ -47,6 +47,9 @@ messages:
   killMessage: "{player} was killed by {killer}"
   alreadyInQueue: "You're already in this queue."
   notInRaid: "You're not in a raid."
+  chatSwitchToTeam: "Switched to team chat."
+  chatSwitchToGlobal: "Switch to global chat."
+
 scoreboard:
   title: "&dPixelRaid"
   flags:

@@ -45,10 +45,10 @@ public class ChatListener implements Listener {
             for (PlayerManager playerManager : game.players.values()) {
                 if (isTeamChat) {
                     if (thisPlayerTeam == playerManager.getTeam()) {
-                        playerManager.getPlayer().sendMessage(ChatColor.GREEN + "[Pixel Raid] " + player.getDisplayName() + ChatColor.GREEN + " » " + event.getMessage());
+                        playerManager.getPlayer().sendMessage(ChatColor.GREEN + "[Pixel Raid] " + player.getDisplayName()  + " » " +  ChatColor.GREEN + event.getMessage());
                     }
                 } else {
-                    playerManager.getPlayer().sendMessage(ChatColor.GREEN + "[Pixel Raid] " + player.getDisplayName() + ChatColor.RESET + " » " + event.getMessage());
+                    playerManager.getPlayer().sendMessage(ChatColor.GREEN + "[Pixel Raid] " + player.getDisplayName()  + " » " +  ChatColor.RESET + event.getMessage());
                 }
             }
         }
